@@ -1,23 +1,32 @@
 package me.catalysmrl.catamines.mine.reward;
 
-import java.util.List;
+import me.catalysmrl.catamines.mine.reward.weight.WeightedContainer;
 
 public final class RewardContainer {
 
-    private final boolean override;
-    private final List<RewardDefinition> rewards;
+    private final String triggerId;
+    private final CascadeMode cascadeMode;
+    private final WeightedContainer<RewardDefinition> rewards;
 
-    RewardContainer(boolean override, List<RewardDefinition> rewards) {
-        this.override = override;
+    public RewardContainer(
+            String triggerId,
+            CascadeMode cascadeMode,
+            WeightedContainer<RewardDefinition> rewards
+    ) {
+        this.triggerId = triggerId;
+        this.cascadeMode = cascadeMode;
         this.rewards = rewards;
     }
 
-    public boolean isOverride() {
-        return override;
+    public String getTriggerId() {
+        return triggerId;
     }
 
-    public List<RewardDefinition> getRewards() {
+    public CascadeMode getCascadeMode() {
+        return cascadeMode;
+    }
+
+    public WeightedContainer<RewardDefinition> getRewards() {
         return rewards;
     }
-
 }

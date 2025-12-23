@@ -13,7 +13,9 @@ import me.catalysmrl.catamines.utils.worldedit.BaseBlockParser;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CataMineBlock implements Choice, SectionSerializable, RewardHolder {
 
@@ -23,6 +25,8 @@ public class CataMineBlock implements Choice, SectionSerializable, RewardHolder 
 
     private DropType dropType;
     private List<CataMineItem> items;
+
+    protected Map<String, RewardContainer> rewardContainers = new HashMap<>();
 
     public CataMineBlock(String blockString, double chance) throws InputParseException {
         this(blockString, chance, DropType.CUSTOM);
@@ -121,12 +125,12 @@ public class CataMineBlock implements Choice, SectionSerializable, RewardHolder 
     }
 
     @Override
-    public boolean hasRewardsFor(String triggerId) {
+    public boolean hasRewardContainer(String triggerId) {
         return false;
     }
 
     @Override
-    public RewardContainer getRewardsFor(String triggerId) {
+    public RewardContainer getRewardContainer(String triggerId) {
         return null;
     }
 

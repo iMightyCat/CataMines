@@ -1,8 +1,8 @@
 package me.catalysmrl.catamines.mine.reward.trigger.triggers;
 
 import me.catalysmrl.catamines.mine.reward.trigger.Trigger;
-import me.catalysmrl.catamines.mine.reward.trigger.TriggerContext;
 import me.catalysmrl.catamines.mine.reward.trigger.context.BlockBreakContext;
+import me.catalysmrl.catamines.mine.reward.trigger.context.TriggerContext;
 
 public class BlockBreakTrigger implements Trigger {
 

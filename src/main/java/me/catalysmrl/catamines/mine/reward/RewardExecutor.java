@@ -1,45 +1,48 @@
 package me.catalysmrl.catamines.mine.reward;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
 import me.catalysmrl.catamines.mine.reward.rewardaction.RewardAction;
-import me.catalysmrl.catamines.mine.reward.rewardaction.RewardContext;
+import me.catalysmrl.catamines.mine.reward.target.Target;
+import me.catalysmrl.catamines.mine.reward.target.TargetModifier;
+import me.catalysmrl.catamines.mine.reward.trigger.context.TriggerContext;
 
-public final class RewardExecutor {
+public class RewardExecutor {
+    private final Random random = new Random();
 
-    private static final Random RANDOM = new Random();
-
-    private RewardExecutor() {}
-
-    public static void executeAll(List<RewardDefinition> rewards, RewardContext context) {
-        if (rewards == null || rewards.isEmpty()) return;
+    public void execute(TriggerContext ctx, List<RewardDefinition> rewards) {
 
         for (RewardDefinition reward : rewards) {
-            boolean success = shouldExecute(reward);
 
-            if (!success) continue;
-
-            for (RewardAction action : reward.getActions()) {
-                try {
-                    action.execute(context);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
+            // Conditions
+            if (!reward.conditions.stream().allMatch(c -> c.test(ctx))) {
+                continue;
             }
 
-            if (reward.getRollMode() == RollMode.FIRST_SUCCESS) break;
+            // Chance
+            if (random.nextDouble() * 100 > reward.chance) {
+                continue;
+            }
+
+            // Resolve targets ONCE
+            Collection<Target> targets = reward.targeter.resolve(ctx);
+
+            // Apply modifiers
+            for (TargetModifier modifier : reward.modifiers) {
+                targets = modifier.apply(targets, ctx);
+            }
+
+            // Execute actions
+            for (RewardAction action : reward.actions) {
+                for (Target target : targets) {
+                    if (!action.supportedTargets().contains(target.type())) {
+                        continue;
+                    }
+                    action.execute(ctx, target);
+                }
+            }
         }
     }
-
-    private static boolean shouldExecute(RewardDefinition reward) {
-        RollMode mode = reward.getRollMode();
-
-        if (mode == RollMode.ALL) return true;
-
-        double chance = reward.getChance();
-
-        return RANDOM.nextDouble() * 100d <= chance;
-    }
-
 }

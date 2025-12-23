@@ -2,47 +2,93 @@ package me.catalysmrl.catamines.mine.reward;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import me.catalysmrl.catamines.api.mine.CataMine;
-import me.catalysmrl.catamines.mine.components.composition.CataMineBlock;
-import me.catalysmrl.catamines.mine.components.composition.CataMineComposition;
-import me.catalysmrl.catamines.mine.components.region.CataMineRegion;
+import me.catalysmrl.catamines.mine.reward.trigger.context.TriggerContext;
+import me.catalysmrl.catamines.mine.reward.weight.RollMode;
+import me.catalysmrl.catamines.mine.reward.weight.WeightedContainer;
+import me.catalysmrl.catamines.mine.reward.weight.WeightedEntry;
 
-public final class CascadeRewardResolver {
+public class CascadeRewardResolver {
 
-    public static List<RewardDefinition> resolveRewards(String triggerId, CataMine mine, CataMineRegion region, CataMineComposition composition, CataMineBlock block) {
+    public Optional<WeightedContainer<RewardDefinition>> resolve(
+            String triggerId,
+            TriggerContext ctx
+    ) {
 
-        List<RewardDefinition> result = new ArrayList<>();
+        List<RewardContainer> containers =
+                collectContainers(triggerId, ctx);
 
-        // 1️⃣ Block Level
-        if (block != null && block.hasRewardsFor(triggerId)) {
-            RewardContainer c = block.getRewardsFor(triggerId);
-            result.addAll(c.getRewards());
-            if (c.isOverride()) return result;
+        if (containers.isEmpty()) {
+            return Optional.empty();
         }
 
-        // 2️⃣ Composition Level
-        if (composition != null && composition.hasRewardsFor(triggerId)) {
-            RewardContainer c = composition.getRewardsFor(triggerId);
-            result.addAll(c.getRewards());
-            if (c.isOverride()) return result;
+        List<WeightedEntry<RewardDefinition>> merged = new ArrayList<>();
+        RollMode rollMode = null;
+
+        for (RewardContainer container : containers) {
+
+            CascadeMode cascade = container.getCascadeMode();
+
+            if (cascade == CascadeMode.DISABLE) {
+                return Optional.empty();
+            }
+
+            if (cascade == CascadeMode.OVERRIDE) {
+                merged.clear();
+                rollMode = container.getRewards().getRollMode();
+            }
+
+            WeightedContainer<RewardDefinition> rewards =
+                    container.getRewards();
+
+            merged.addAll(rewards.getEntries());
+
+            if (rollMode == null) {
+                rollMode = rewards.getRollMode();
+            }
         }
 
-        // 3️⃣ Region Level
-        if (region != null && region.hasRewardsFor(triggerId)) {
-            RewardContainer c = region.getRewardsFor(triggerId);
-            result.addAll(c.getRewards());
-            if (c.isOverride()) return result;
+        if (merged.isEmpty() || rollMode == null) {
+            return Optional.empty();
         }
 
-        // 4️⃣ Mine Level
-        if (mine != null && mine.hasRewardsFor(triggerId)) {
-            RewardContainer c = mine.getRewardsFor(triggerId);
-            result.addAll(c.getRewards());
-        }
-
-        return result;
-
+        return Optional.of(
+                new WeightedContainer<>(rollMode, merged)
+        );
     }
 
+    private List<RewardContainer> collectContainers(
+            String triggerId,
+            TriggerContext ctx
+    ) {
+
+        List<RewardContainer> result = new ArrayList<>();
+
+        // Most specific → least specific
+
+        ctx.block().ifPresent(block -> {
+            RewardContainer rc = block.getRewardContainer(triggerId);
+            if (rc != null) result.add(rc);
+        });
+
+        ctx.composition().ifPresent(comp -> {
+            RewardContainer rc = comp.getRewardContainer(triggerId);
+            if (rc != null) result.add(rc);
+        });
+
+        ctx.region().ifPresent(region -> {
+            RewardContainer rc = region.getRewardContainer(triggerId);
+            if (rc != null) result.add(rc);
+        });
+
+        ctx.mine().ifPresent(mine -> {
+            RewardContainer rc = mine.getRewardContainer(triggerId);
+            if (rc != null) result.add(rc);
+        });
+
+        return result;
+    }
 }
+
+

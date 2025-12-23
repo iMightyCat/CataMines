@@ -1,5 +1,8 @@
 package me.catalysmrl.catamines.mine.abstraction;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import me.catalysmrl.catamines.CataMines;
 import me.catalysmrl.catamines.api.mine.CataMine;
 import me.catalysmrl.catamines.mine.components.manager.choice.ChoiceManager;
@@ -18,6 +21,8 @@ public abstract class AbstractCataMine implements CataMine, Cloneable {
     protected ChoiceManager<CataMineRegion> regionManager;
 
     protected MineFlags flags;
+
+    protected Map<String, RewardContainer> rewardContainers = new HashMap<>();
 
     public AbstractCataMine(CataMines plugin, String name) {
         this.plugin = plugin;
@@ -109,12 +114,12 @@ public abstract class AbstractCataMine implements CataMine, Cloneable {
     }
 
     @Override
-    public boolean hasRewardsFor(String triggerId) {
+    public boolean hasRewardContainer(String triggerId) {
         return false;
     }
 
     @Override
-    public RewardContainer getRewardsFor(String triggerId) {
+    public RewardContainer getRewardContainer(String triggerId) {
         return null;
     }
 

@@ -13,7 +13,9 @@ import me.catalysmrl.catamines.mine.reward.RewardHolder;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import me.catalysmrl.catamines.api.mine.Flag;
@@ -32,6 +34,8 @@ public class CataMineComposition
     private RandomPattern randomPattern = new RandomPattern();
 
     private MineFlags flags = new MineFlags();
+
+    protected Map<String, RewardContainer> rewardContainers = new HashMap<>();
 
     public CataMineComposition(String name) {
         this.name = name;
@@ -168,12 +172,12 @@ public class CataMineComposition
     }
 
     @Override
-    public boolean hasRewardsFor(String triggerId) {
+    public boolean hasRewardContainer(String triggerId) {
         return false;
     }
 
     @Override
-    public RewardContainer getRewardsFor(String triggerId) {
+    public RewardContainer getRewardContainer(String triggerId) {
         return null;
     }
 

@@ -3,6 +3,8 @@ package me.catalysmrl.catamines.mine.reward.trigger;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.catalysmrl.catamines.mine.reward.trigger.context.TriggerContext;
+
 public final class TriggerRegistry {
 
     private static final Map<String, Trigger> TRIGGERS = new HashMap<>();
