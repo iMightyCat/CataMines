@@ -8,7 +8,6 @@ import me.catalysmrl.catamines.api.mine.CataMine;
 import me.catalysmrl.catamines.mine.components.manager.choice.ChoiceManager;
 import me.catalysmrl.catamines.mine.components.manager.controller.CataMineController;
 import me.catalysmrl.catamines.mine.components.region.CataMineRegion;
-import me.catalysmrl.catamines.mine.reward.RewardContainer;
 import me.catalysmrl.catamines.mine.components.MineFlags;
 
 public abstract class AbstractCataMine implements CataMine, Cloneable {
@@ -21,8 +20,6 @@ public abstract class AbstractCataMine implements CataMine, Cloneable {
     protected ChoiceManager<CataMineRegion> regionManager;
 
     protected MineFlags flags;
-
-    protected Map<String, RewardContainer> rewardContainers = new HashMap<>();
 
     public AbstractCataMine(CataMines plugin, String name) {
         this.plugin = plugin;
@@ -110,16 +107,6 @@ public abstract class AbstractCataMine implements CataMine, Cloneable {
 
     @Override
     public me.catalysmrl.catamines.api.mine.PropertyHolder getParent() {
-        return null;
-    }
-
-    @Override
-    public boolean hasRewardContainer(String triggerId) {
-        return false;
-    }
-
-    @Override
-    public RewardContainer getRewardContainer(String triggerId) {
         return null;
     }
 

@@ -6,7 +6,6 @@ import me.catalysmrl.catamines.mine.components.MineFlags;
 import me.catalysmrl.catamines.mine.components.manager.choice.ChoiceManager;
 import me.catalysmrl.catamines.mine.components.manager.controller.CataMineController;
 import me.catalysmrl.catamines.mine.components.region.CataMineRegion;
-import me.catalysmrl.catamines.mine.reward.RewardHolder;
 
 /**
  * A regenerating mine. The user of this interface has precise
@@ -14,7 +13,7 @@ import me.catalysmrl.catamines.mine.reward.RewardHolder;
  *
  * @author CatalysmRL
  */
-public interface CataMine extends SectionSerializable, PropertyHolder, Targetable, RewardHolder {
+public interface CataMine extends SectionSerializable, PropertyHolder, Targetable {
 
     CataMines getPlugin();
 

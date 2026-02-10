@@ -6,8 +6,6 @@ import me.catalysmrl.catamines.api.serialization.DeserializationException;
 import me.catalysmrl.catamines.api.serialization.SectionSerializable;
 import me.catalysmrl.catamines.mine.components.composition.drop.CataMineItem;
 import me.catalysmrl.catamines.mine.components.manager.choice.Choice;
-import me.catalysmrl.catamines.mine.reward.RewardContainer;
-import me.catalysmrl.catamines.mine.reward.RewardHolder;
 import me.catalysmrl.catamines.utils.message.Message;
 import me.catalysmrl.catamines.utils.worldedit.BaseBlockParser;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CataMineBlock implements Choice, SectionSerializable, RewardHolder {
+public class CataMineBlock implements Choice, SectionSerializable {
 
     private String blockString;
     private BaseBlock baseBlock;
@@ -25,8 +23,6 @@ public class CataMineBlock implements Choice, SectionSerializable, RewardHolder 
 
     private DropType dropType;
     private List<CataMineItem> items;
-
-    protected Map<String, RewardContainer> rewardContainers = new HashMap<>();
 
     public CataMineBlock(String blockString, double chance) throws InputParseException {
         this(blockString, chance, DropType.CUSTOM);
@@ -122,16 +118,6 @@ public class CataMineBlock implements Choice, SectionSerializable, RewardHolder 
 
     public void setItems(List<CataMineItem> items) {
         this.items = items;
-    }
-
-    @Override
-    public boolean hasRewardContainer(String triggerId) {
-        return false;
-    }
-
-    @Override
-    public RewardContainer getRewardContainer(String triggerId) {
-        return null;
     }
 
     @Override

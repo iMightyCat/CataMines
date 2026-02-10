@@ -7,8 +7,6 @@ import me.catalysmrl.catamines.mine.components.MineFlags;
 import me.catalysmrl.catamines.mine.components.manager.choice.Choice;
 import me.catalysmrl.catamines.mine.components.manager.choice.Identifiable;
 import me.catalysmrl.catamines.mine.components.region.CataMineRegion;
-import me.catalysmrl.catamines.mine.reward.RewardContainer;
-import me.catalysmrl.catamines.mine.reward.RewardHolder;
 
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -23,7 +21,7 @@ import me.catalysmrl.catamines.api.mine.PropertyHolder;
 import me.catalysmrl.catamines.api.mine.Targetable;
 
 public class CataMineComposition
-        implements Identifiable, Choice, SectionSerializable, PropertyHolder, Targetable, RewardHolder, Cloneable {
+        implements Identifiable, Choice, SectionSerializable, PropertyHolder, Targetable, Cloneable {
 
     private CataMineRegion region;
 
@@ -34,8 +32,6 @@ public class CataMineComposition
     private RandomPattern randomPattern = new RandomPattern();
 
     private MineFlags flags = new MineFlags();
-
-    protected Map<String, RewardContainer> rewardContainers = new HashMap<>();
 
     public CataMineComposition(String name) {
         this.name = name;
@@ -169,16 +165,6 @@ public class CataMineComposition
         }
 
         return composition;
-    }
-
-    @Override
-    public boolean hasRewardContainer(String triggerId) {
-        return false;
-    }
-
-    @Override
-    public RewardContainer getRewardContainer(String triggerId) {
-        return null;
     }
 
     @Override
