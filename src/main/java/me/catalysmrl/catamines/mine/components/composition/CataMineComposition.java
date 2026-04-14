@@ -3,6 +3,8 @@ package me.catalysmrl.catamines.mine.components.composition;
 import com.sk89q.worldedit.function.pattern.RandomPattern;
 import me.catalysmrl.catamines.api.serialization.DeserializationException;
 import me.catalysmrl.catamines.api.serialization.SectionSerializable;
+import me.catalysmrl.catamines.api.rewards.Reward;
+import me.catalysmrl.catamines.api.rewards.RewardHolder;
 import me.catalysmrl.catamines.mine.components.MineFlags;
 import me.catalysmrl.catamines.mine.components.manager.choice.Choice;
 import me.catalysmrl.catamines.mine.components.manager.choice.Identifiable;
@@ -21,7 +23,7 @@ import me.catalysmrl.catamines.api.mine.PropertyHolder;
 import me.catalysmrl.catamines.api.mine.Targetable;
 
 public class CataMineComposition
-        implements Identifiable, Choice, SectionSerializable, PropertyHolder, Targetable, Cloneable {
+        implements Identifiable, Choice, SectionSerializable, PropertyHolder, Targetable, RewardHolder, Cloneable {
 
     private CataMineRegion region;
 
@@ -32,6 +34,7 @@ public class CataMineComposition
     private RandomPattern randomPattern = new RandomPattern();
 
     private MineFlags flags = new MineFlags();
+    private List<Reward> rewards = new ArrayList<>();
 
     public CataMineComposition(String name) {
         this.name = name;
@@ -120,6 +123,23 @@ public class CataMineComposition
     }
 
     @Override
+    public List<Reward> getRewards() {
+        return rewards;
+    }
+
+    @Override
+    public void addReward(Reward reward) {
+        if (reward != null && !rewards.contains(reward)) {
+            rewards.add(reward);
+        }
+    }
+
+    @Override
+    public void removeReward(Reward reward) {
+        rewards.remove(reward);
+    }
+
+    @Override
     public PropertyHolder getParent() {
         return region;
     }
@@ -129,6 +149,10 @@ public class CataMineComposition
         section.set("name", name);
         section.set("chance", chance);
         flags.serialize(section.createSection("flags"));
+        if (!rewards.isEmpty()) {
+            ConfigurationSection rewardsSection = section.createSection("rewards");
+            for (Reward r : rewards) r.serialize(rewardsSection.createSection(r.getId()));
+        }
         ConfigurationSection blocksSection = section.createSection("blocks");
         for (int i = 0; i < blocks.size(); i++) {
             blocks.get(i).serialize(blocksSection.createSection("block-" + i));
@@ -163,6 +187,13 @@ public class CataMineComposition
         if (section.contains("flags")) {
             composition.flags = MineFlags.deserialize(section.getConfigurationSection("flags"));
         }
+        
+        if (section.contains("rewards")) {
+            ConfigurationSection rSec = section.getConfigurationSection("rewards");
+            for (String rId : rSec.getKeys(false)) {
+                composition.addReward(Reward.deserialize(rId, rSec.getConfigurationSection(rId)));
+            }
+        }
 
         return composition;
     }
@@ -172,6 +203,7 @@ public class CataMineComposition
         try {
             CataMineComposition clone = (CataMineComposition) super.clone();
             clone.flags = this.flags.clone();
+            clone.rewards = new ArrayList<>(this.rewards);
             clone.blocks = new ArrayList<>(this.blocks); // shallow copy of list
             clone.randomPattern = new RandomPattern();
             // Rebuild pattern from cloned blocks

@@ -59,6 +59,12 @@ public class SelectionRegion extends AbstractCataMineRegion implements Cloneable
     }
 
     @Override
+    public boolean contains(org.bukkit.Location location) {
+        if (region == null || region.getWorld() == null || !region.getWorld().getName().equals(location.getWorld().getName())) return false;
+        return region.contains(BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+    }
+
+    @Override
     public RegionType getType() {
         return RegionType.SELECTION;
     }

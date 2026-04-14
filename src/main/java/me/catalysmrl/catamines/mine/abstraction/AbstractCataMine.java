@@ -8,9 +8,14 @@ import me.catalysmrl.catamines.api.mine.CataMine;
 import me.catalysmrl.catamines.mine.components.manager.choice.ChoiceManager;
 import me.catalysmrl.catamines.mine.components.manager.controller.CataMineController;
 import me.catalysmrl.catamines.mine.components.region.CataMineRegion;
+import me.catalysmrl.catamines.api.rewards.Reward;
+import me.catalysmrl.catamines.api.rewards.RewardHolder;
 import me.catalysmrl.catamines.mine.components.MineFlags;
 
-public abstract class AbstractCataMine implements CataMine, Cloneable {
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class AbstractCataMine implements CataMine, RewardHolder, Cloneable {
 
     protected final CataMines plugin;
 
@@ -20,6 +25,7 @@ public abstract class AbstractCataMine implements CataMine, Cloneable {
     protected ChoiceManager<CataMineRegion> regionManager;
 
     protected MineFlags flags;
+    protected List<Reward> rewards;
 
     public AbstractCataMine(CataMines plugin, String name) {
         this.plugin = plugin;
@@ -28,6 +34,7 @@ public abstract class AbstractCataMine implements CataMine, Cloneable {
         controller = new CataMineController(this);
         regionManager = new ChoiceManager<>();
         flags = new MineFlags();
+        rewards = new ArrayList<>();
     }
 
     @Override
@@ -111,11 +118,29 @@ public abstract class AbstractCataMine implements CataMine, Cloneable {
     }
 
     @Override
+    public List<Reward> getRewards() {
+        return rewards;
+    }
+
+    @Override
+    public void addReward(Reward reward) {
+        if (reward != null && !rewards.contains(reward)) {
+            rewards.add(reward);
+        }
+    }
+
+    @Override
+    public void removeReward(Reward reward) {
+        rewards.remove(reward);
+    }
+
+    @Override
     public CataMine clone() {
         try {
             AbstractCataMine clone = (AbstractCataMine) super.clone();
 
             clone.flags = this.flags.clone();
+            clone.rewards = new ArrayList<>(this.rewards);
 
             // Manually clone controller to ensure the new mine instance is used
             clone.controller = new CataMineController(clone);

@@ -4,6 +4,8 @@ import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import me.catalysmrl.catamines.api.serialization.DeserializationException;
 import me.catalysmrl.catamines.api.serialization.SectionSerializable;
+import me.catalysmrl.catamines.api.rewards.Reward;
+import me.catalysmrl.catamines.api.rewards.RewardHolder;
 import me.catalysmrl.catamines.mine.components.composition.drop.CataMineItem;
 import me.catalysmrl.catamines.mine.components.manager.choice.Choice;
 import me.catalysmrl.catamines.utils.message.Message;
@@ -15,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CataMineBlock implements Choice, SectionSerializable {
+public class CataMineBlock implements Choice, SectionSerializable, RewardHolder {
 
     private String blockString;
     private BaseBlock baseBlock;
@@ -23,6 +25,7 @@ public class CataMineBlock implements Choice, SectionSerializable {
 
     private DropType dropType;
     private List<CataMineItem> items;
+    private List<Reward> rewards = new ArrayList<>();
 
     public CataMineBlock(String blockString, double chance) throws InputParseException {
         this(blockString, chance, DropType.CUSTOM);
@@ -54,6 +57,11 @@ public class CataMineBlock implements Choice, SectionSerializable {
         for (int i = 0; i < items.size(); i++) {
             items.get(i).serialize(lootTableSection.createSection("item-" + i));
         }
+
+        if (!rewards.isEmpty()) {
+            ConfigurationSection rewardsSection = section.createSection("rewards");
+            for (Reward r : rewards) r.serialize(rewardsSection.createSection(r.getId()));
+        }
     }
 
     public static CataMineBlock deserialize(ConfigurationSection section) throws DeserializationException {
@@ -78,7 +86,14 @@ public class CataMineBlock implements Choice, SectionSerializable {
         }
 
         try {
-            return new CataMineBlock(blockString, chance, dropType, itemList);
+            CataMineBlock block = new CataMineBlock(blockString, chance, dropType, itemList);
+            if (section.contains("rewards")) {
+                ConfigurationSection rSec = section.getConfigurationSection("rewards");
+                for (String rId : rSec.getKeys(false)) {
+                    block.addReward(Reward.deserialize(rId, rSec.getConfigurationSection(rId)));
+                }
+            }
+            return block;
         } catch (InputParseException e) {
             throw new DeserializationException("Invalid block input: " + e.getMessage());
         }
@@ -118,6 +133,23 @@ public class CataMineBlock implements Choice, SectionSerializable {
 
     public void setItems(List<CataMineItem> items) {
         this.items = items;
+    }
+
+    @Override
+    public List<Reward> getRewards() {
+        return rewards;
+    }
+
+    @Override
+    public void addReward(Reward reward) {
+        if (reward != null && !rewards.contains(reward)) {
+            rewards.add(reward);
+        }
+    }
+
+    @Override
+    public void removeReward(Reward reward) {
+        rewards.remove(reward);
     }
 
     @Override

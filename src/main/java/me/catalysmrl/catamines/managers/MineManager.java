@@ -218,6 +218,24 @@ public class MineManager {
                 .findFirst();
     }
 
+    public Optional<CataMine> getMineAtLocation(org.bukkit.Location location) {
+        for (CataMine mine : mines) {
+            for (CataMineRegion region : mine.getRegionManager().getChoices()) {
+                if (region.contains(location)) {
+                    return Optional.of(mine);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+    
+    public Optional<CataMineRegion> getRegionAtLocation(CataMine mine, org.bukkit.Location location) {
+        for (CataMineRegion region : mine.getRegionManager().getChoices()) {
+            if (region.contains(location)) return Optional.of(region);
+        }
+        return Optional.empty();
+    }
+
     /**
      * Returns the list containing all registered mines.
      *

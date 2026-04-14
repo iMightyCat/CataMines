@@ -4,6 +4,7 @@ import me.catalysmrl.catamines.api.mine.CataMine;
 import me.catalysmrl.catamines.api.mine.Flag;
 import me.catalysmrl.catamines.api.mine.PropertyHolder;
 import me.catalysmrl.catamines.api.serialization.DeserializationException;
+import me.catalysmrl.catamines.api.rewards.Reward;
 import me.catalysmrl.catamines.mine.components.MineFlags;
 import me.catalysmrl.catamines.mine.components.composition.CataMineComposition;
 import me.catalysmrl.catamines.mine.components.manager.choice.ChoiceManager;
@@ -11,9 +12,7 @@ import me.catalysmrl.catamines.mine.components.manager.choice.ChoiceManager;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractCataMineRegion implements CataMineRegion {
 
@@ -22,6 +21,7 @@ public abstract class AbstractCataMineRegion implements CataMineRegion {
     protected String name;
     protected double chance = 100.0d;
     protected ChoiceManager<CataMineComposition> compositionManager;
+    protected List<Reward> rewards = new ArrayList<>();
 
     protected MineFlags flags = new MineFlags();
 
@@ -36,6 +36,10 @@ public abstract class AbstractCataMineRegion implements CataMineRegion {
         section.set("name", name);
         section.set("chance", chance);
         flags.serialize(section.createSection("flags"));
+        if (!rewards.isEmpty()) {
+            ConfigurationSection rewardsSection = section.createSection("rewards");
+            for (Reward r : rewards) r.serialize(rewardsSection.createSection(r.getId()));
+        }
     }
 
     public void serializeCompositions(ConfigurationSection compositionsSection) {
@@ -106,10 +110,28 @@ public abstract class AbstractCataMineRegion implements CataMineRegion {
     }
 
     @Override
+    public List<Reward> getRewards() {
+        return rewards;
+    }
+
+    @Override
+    public void addReward(Reward reward) {
+        if (reward != null && !rewards.contains(reward)) {
+            rewards.add(reward);
+        }
+    }
+
+    @Override
+    public void removeReward(Reward reward) {
+        rewards.remove(reward);
+    }
+
+    @Override
     public AbstractCataMineRegion clone() {
         try {
             AbstractCataMineRegion clone = (AbstractCataMineRegion) super.clone();
             clone.flags = this.flags.clone();
+            clone.rewards = new ArrayList<>(this.rewards);
             clone.compositionManager = new ChoiceManager<>();
             for (CataMineComposition comp : this.compositionManager.getChoices()) {
                 clone.compositionManager.add(comp.clone());

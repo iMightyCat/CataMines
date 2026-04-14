@@ -63,6 +63,7 @@ public class CommandManager implements TabExecutor {
                 .put("confirm", new ConfirmCommand())
                 .put("undo", new UndoCommand())
                 .put("redo", new RedoCommand())
+                .put("testreward", new RewardDebugCommand())
                 .build();
     }
 

@@ -6,7 +6,8 @@ import me.catalysmrl.catamines.managers.MineManager;
 import me.catalysmrl.catamines.utils.helper.CompatibilityProvider;
 import me.catalysmrl.catamines.utils.message.LocaleBootstrap;
 import me.catalysmrl.catamines.utils.placeholders.CataMinePlaceHolders;
-
+import me.catalysmrl.catamines.api.rewards.RewardManager;
+import me.catalysmrl.catamines.api.rewards.parser.RewardParser;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
@@ -24,6 +25,8 @@ public final class CataMines extends JavaPlugin {
 
     private MineManager mineManager;
     private CommandManager commandManager;
+    private RewardManager rewardManager;
+    private RewardParser rewardParser;
 
     @Override
     public void onLoad() {
@@ -39,6 +42,21 @@ public final class CataMines extends JavaPlugin {
         new LocaleBootstrap(this).init();
 
         mineManager = new MineManager(this);
+        
+        // Setup Reward Engine
+        rewardManager = new RewardManager();
+        rewardParser = new RewardParser(rewardManager);
+        
+        // Register default Handlers
+        rewardManager.registerAction("actionbar", new me.catalysmrl.catamines.mine.rewards.actions.ActionBarAction());
+        rewardManager.registerAction("command", new me.catalysmrl.catamines.mine.rewards.actions.CommandAction());
+        rewardManager.registerAction("giveitem", new me.catalysmrl.catamines.mine.rewards.actions.GiveItemAction());
+        
+        rewardManager.registerTargeter("trigger", new me.catalysmrl.catamines.mine.rewards.targeters.TriggerTargeter());
+        rewardManager.registerTargeter("playersinradius", new me.catalysmrl.catamines.mine.rewards.targeters.PlayersInRadiusTargeter());
+        
+        rewardManager.registerCondition("haspermission", new me.catalysmrl.catamines.mine.rewards.conditions.PermissionCondition());
+
         registerCommands();
         registerListeners();
 
@@ -86,6 +104,7 @@ public final class CataMines extends JavaPlugin {
         getLogger().info("Registering listeners");
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new BlockListeners(mineManager), this);
+        pm.registerEvents(new me.catalysmrl.catamines.mine.rewards.listeners.RewardListener(this), this);
     }
 
     public MineManager getMineManager() {
@@ -94,5 +113,13 @@ public final class CataMines extends JavaPlugin {
 
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    public RewardManager getRewardManager() {
+        return rewardManager;
+    }
+
+    public RewardParser getRewardParser() {
+        return rewardParser;
     }
 }

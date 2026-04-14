@@ -3,6 +3,7 @@ package me.catalysmrl.catamines.mine.components.region.impl;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.world.World;
 import me.catalysmrl.catamines.api.serialization.DeserializationException;
@@ -49,6 +50,15 @@ public class SchematicRegion extends AbstractCataMineRegion implements Cloneable
     @Override
     public void fill() {
         WorldEditUtils.pasteSchematic(clipboard, world, location);
+    }
+
+    @Override
+    public boolean contains(org.bukkit.Location loc) {
+        if (world == null || !world.getName().equals(loc.getWorld().getName())) return false;
+        if (clipboard == null || clipboard.getRegion() == null) return false;
+        
+        Region r = clipboard.getRegion();
+        return r.contains(BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
     }
 
     @Override
